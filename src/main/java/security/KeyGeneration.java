@@ -11,15 +11,17 @@ public class KeyGeneration {
 
     }
 
-    public void generateBlowfishKeys() throws Exception {
+    public SecretKey generateBlowfishKeys() throws Exception {
 
         KeyGenerator keyGenerator = KeyGenerator.getInstance("Blowfish");
         keyGenerator.init(32);
 
         SecretKey key = keyGenerator.generateKey();
-
-        System.out.println(Base64.getEncoder().encodeToString(key.getEncoded()));
+        return key;
+        //System.out.println(Base64.getEncoder().encodeToString(key.getEncoded()));
     }
+
+
 
 
 }
