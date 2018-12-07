@@ -16,7 +16,8 @@ public class ReadDump {
         ArrayList<IPcapngType> sectionList = decoder.getSectionList();
         ArrayList<IEnhancedPacketBLock> packetList = new ArrayList<>();
         ArrayList<String> byteStrings = new ArrayList<>();
-        for (int i = 0; i <= 83400; i++){
+        System.out.println("Reading dump...");
+        for (int i = 0; i <= 80000; i++){
             if (sectionList.get(i) instanceof  IEnhancedPacketBLock){
                 IEnhancedPacketBLock section = (IEnhancedPacketBLock) sectionList.get(i);
                 packetList.add(section);
@@ -30,7 +31,10 @@ public class ReadDump {
                 sb.append(String.format("%02X", b));
             }
             String byteString = sb.toString();
-            byteStrings.add(byteString);
+            if (byteString.startsWith("FFFFFF")){
+                byteStrings.add(byteString);
+            }
+
         }
 
 

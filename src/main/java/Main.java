@@ -14,23 +14,22 @@ public class Main {
         HashMap<String, String> keyMap = new HashMap<>();
 
         KeyGeneration keygen = new KeyGeneration();
+        System.out.println("Encrypting plaintext...");
         for (int i = 0; i < Math.pow(2, 16); i++) {
             SecretKey key = keygen.generateBlowfishKeys();
-            Cipher cipher = Cipher.getInstance("Blowfish/ECB/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("Blowfish");
             cipher.init(Cipher.ENCRYPT_MODE, key);
-            byte [] encrypted = cipher.doFinal(plaintextHeader.getBytes("UTF8"));
+            byte [] encrypted = cipher.doFinal(plaintextHeader.getBytes());
 
             String s = getByteStream(encrypted);
             keyMap.put(s, Base64.getEncoder().encodeToString(key.getEncoded()));
 
-            // TODO encrypt all plaintext headers 2^16 times
-            // TODO save (ciphertext, key) pairs in hashtables
         }
         int countPackets = 0;
         int countMatches = 0;
         for (String packet : packetList){
             packet = packet.substring(84, 100);
-            if (keyMap.containsKey(packet) == true){
+            if (keyMap.containsKey(packet)  == true){
                 System.out.println("Found: " + keyMap.get(packet));
                 countMatches++;
             }
