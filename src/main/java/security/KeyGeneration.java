@@ -11,7 +11,7 @@ public class KeyGeneration {
 
     }
 
-    public SecretKey generateBlowfishKeys() throws Exception {
+    public SecretKey generateBlowfishKey() throws Exception {
 
         KeyGenerator keyGenerator = KeyGenerator.getInstance("Blowfish");
         keyGenerator.init(32);

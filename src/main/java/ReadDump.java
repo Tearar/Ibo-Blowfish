@@ -11,13 +11,13 @@ public class ReadDump {
     }
 
     public static ArrayList<String> getDump(){
-        PcapDecoder decoder = new PcapDecoder("D:/ibodump.pcapng");
+        PcapDecoder decoder = new PcapDecoder("C:/ibodump.pcapng");
         decoder.decode();
         ArrayList<IPcapngType> sectionList = decoder.getSectionList();
         ArrayList<IEnhancedPacketBLock> packetList = new ArrayList<>();
         ArrayList<String> byteStrings = new ArrayList<>();
         System.out.println("Reading dump...");
-        for (int i = 0; i <= 80000; i++){
+        for (int i = 0; i <= 180000; i++){
             if (sectionList.get(i) instanceof  IEnhancedPacketBLock){
                 IEnhancedPacketBLock section = (IEnhancedPacketBLock) sectionList.get(i);
                 packetList.add(section);

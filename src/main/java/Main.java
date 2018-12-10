@@ -1,6 +1,7 @@
 import security.KeyGeneration;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -8,40 +9,47 @@ import java.util.HashMap;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+
+        //Reads a .pcapng file
         ArrayList<String> packetList = ReadDump.getDump();
-        //byte [] plaintextHeader = hexStringToByteArray("<?xml version=");
-        String plaintextHeader = "<?xml v"; //Sollten 8 Zeichen sein (2Byte pro Zeichen *8 = 64 bit Blockgröße bei Blowfish)
-        HashMap<String, String> keyMap = new HashMap<>();
+
+        String plaintextHeader = "<?xml ve";
+        HashMap<String, SecretKeySpec> keyMap = new HashMap<>();
 
         KeyGeneration keygen = new KeyGeneration();
         System.out.println("Encrypting plaintext...");
+
+        //Key generation and encryption
         for (int i = 0; i < Math.pow(2, 16); i++) {
-            SecretKey key = keygen.generateBlowfishKeys();
-            Cipher cipher = Cipher.getInstance("Blowfish");
+            SecretKey secretKey = keygen.generateBlowfishKey();
+            SecretKeySpec key = new SecretKeySpec(secretKey.getEncoded(), "Blowfish");
+            Cipher cipher = Cipher.getInstance("Blowfish/ECB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte [] encrypted = cipher.doFinal(plaintextHeader.getBytes());
 
             String s = getByteStream(encrypted);
-            keyMap.put(s, Base64.getEncoder().encodeToString(key.getEncoded()));
+            keyMap.put(s, key);
 
         }
-        int countPackets = 0;
         int countMatches = 0;
+        //Searching for matches, decryption if a match was found
         for (String packet : packetList){
+            String completePacket = packet.substring(84);
             packet = packet.substring(84, 100);
-            if (keyMap.containsKey(packet)  == true){
+            if (keyMap.containsKey(packet)){
                 System.out.println("Found: " + keyMap.get(packet));
+                Cipher cipher = Cipher.getInstance("Blowfish");
+                cipher.init(Cipher.DECRYPT_MODE, keyMap.get(packet));
+                byte [] decrypted = cipher.doFinal(hexStringToByteArray(completePacket));
+                System.out.println(new String(decrypted));
                 countMatches++;
+
             }
-
-            System.out.println("Packet " + countPackets + ": " + packet);
-            countPackets++;
         }
-
         System.out.println("Found matches: " + countMatches);
     }
 
-    /*public static byte[] hexStringToByteArray(String s) {
+    public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
@@ -49,7 +57,7 @@ public class Main {
                     + Character.digit(s.charAt(i+1), 16));
         }
         return data;
-    }*/
+    }
 
     public static String getByteStream(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
